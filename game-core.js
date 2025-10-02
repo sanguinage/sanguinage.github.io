@@ -3,7 +3,7 @@
 // ====================================================================
 const GAME_CONFIG = {
   supabaseUrl: 'https://juxjacibwskacnudwghb.supabase.co',
-  supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1eGphY2lid3NrYWNudWR3Z2hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5MTk2MDQsImV4cCI6MjA3NDQ5NTYwNH0.D8eX69IQ5hYHBpqKLqb_K5MJFtCND5stVSy_VVP_txQ',
+  supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1eGphY2lid3NrYWNudWR3Z2hiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1ODkxOTYwNCwiZXhwIjoyMDc0NDk1NjA0fQ.mtldsjrKTVG1gi6nZd7nh4FQcCsBeybQ1W1ecXzwczU',
   homeUrl: './homeplayer.html',
   loginUrl: './index.html'
 };
