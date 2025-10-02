@@ -1,0 +1,177 @@
+<style>
+  .corte-do-player {
+    margin-top: 40px;
+    padding: 20px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.005));
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    border: 1px solid rgba(224,162,11,0.06);
+    max-width: 1200px;
+    margin-left: 0;
+    margin-right: auto;
+    text-align: left;
+  }
+  .corte-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .corte-do-player h3 {
+    font-family: 'Cinzel', serif;
+    color: var(--gold);
+    margin: 0;
+    font-size: 20px;
+    text-align: left;
+  }
+  .footer-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .dormir-btn {
+    background: linear-gradient(180deg, rgba(155,155,255,0.14), rgba(120,120,255,0.12));
+    color: #e6eaff;
+    border: 1px solid rgba(155,155,255,0.25);
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .dormir-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(120,120,255,0.12);
+  }
+  .corte-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 12px;
+  }
+  .corte-section h4 {
+    color: var(--gold);
+    font-size: 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .corte-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+    color: #c0d0e0;
+  }
+  .corte-section ul li {
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .corte-section ul li:last-child {
+    border-bottom: none;
+  }
+  .empty {
+    color: var(--muted);
+    font-style: italic;
+  }
+  /* Resumo minimalista — AGORA FORA do header */
+  .player-summary-footer {
+    margin-top: 16px;
+    color: #cbd6df;
+    font-size: 14px;
+    display: block;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  #footer-msg {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 13px;
+    min-height: 18px;
+  }
+  @media (max-width: 720px) {
+    .corte-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+  }
+</style>
+
+<div class="corte-do-player">
+  <!-- Cabeçalho: só título + botão -->
+  <div class="corte-header">
+    <h3>🏛️ A Corte do Jogador</h3>
+    <div class="footer-actions">
+      <button id="btn-dormir" class="dormir-btn" title="Recuperar energia">🛌 Dormir</button>
+    </div>
+  </div>
+  
+  <!-- Resumo minimalista: AGORA FORA, abaixo do header -->
+  <div id="player-summary-footer" class="player-summary-footer">
+    <span id="summary-lvl-footer">Lvl -</span>
+    <span id="summary-nome-footer">-</span>
+    <span id="summary-titulo-footer">-</span>
+    <span id="summary-classe-footer">-</span>
+    <span id="summary-atributos-footer">0/0/0</span>
+  </div>
+
+  <!-- Grid de seções -->
+  <div class="corte-grid">
+    <div class="corte-section">
+      <h4>👤 Aliados (NPCs)</h4>
+      <ul id="footer-npcs-list"><li class="empty">Carregando...</li></ul>
+    </div>
+    <div class="corte-section">
+      <h4>⚔️ Armas</h4>
+      <ul id="footer-armas-list"><li class="empty">Carregando...</li></ul>
+    </div>
+    <div class="corte-section">
+      <h4>🎒 Itens</h4>
+      <ul id="footer-itens-list"><li class="empty">Carregando...</li></ul>
+    </div>
+    <div class="corte-section">
+      <h4>⭐ Nível</h4>
+      <ul><li id="footer-level">-</li></ul>
+    </div>
+  </div>
+
+  <div id="footer-msg"></div>
+</div>
+
+<script>  
+(async function initFooter() {
+  function atualizarResumoPlayerFooter() {
+    const p = JSON.parse(localStorage.getItem('playerData')) || {};
+    document.getElementById('summary-lvl-footer').textContent = `Lvl ${p.level || '-'}`;
+    document.getElementById('summary-nome-footer').textContent = p.nomeplayer || '-';
+    document.getElementById('summary-titulo-footer').textContent = p.titulo || '-';
+    document.getElementById('summary-classe-footer').textContent = p.classe || '-';
+    document.getElementById('summary-atributos-footer').textContent =
+      `${p.forcaini || 0}/${p.defesaini || 0}/${p.inteligenciaini || 0}`;
+  }
+
+  document.getElementById('btn-dormir').addEventListener('click', async () => {
+    const msgEl = document.getElementById('footer-msg');
+    try {
+      const result = await dormir();
+      msgEl.textContent = 'Você dormiu — energia restaurada.';
+      await GAME.ensurePlayerData();
+      atualizarResumoPlayerFooter();
+    } catch (e) {
+      console.error('Erro dormir:', e);
+      msgEl.textContent = 'Erro ao tentar dormir.';
+    }
+    setTimeout(() => { msgEl.textContent = ''; }, 3000);
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', atualizarHeaderPlayer);
+  } else {
+    atualizarResumoPlayerFooter();
+  }
+  setInterval(atualizarHeaderPlayer, 2000);
+
+});
+</script>
