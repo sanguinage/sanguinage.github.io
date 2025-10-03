@@ -580,6 +580,188 @@ document.addEventListener('touchend', function(e) {
     lastTouchEnd = now;
 }, false);
 
+// 🔥 VARIÁVEIS NOVAS PARA CONTROLAR O TOUCH
+let lastTouchX = 0;
+let lastTouchY = 0;
+let isTouchActive = false;
+
+// 🔥 ATUALIZAR AS FUNÇÕES DE TOUCH
+function handleTouchMove(e) {
+    if (!gameActive || gamePaused) return;
+    e.preventDefault();
+    const rect = gameArea.getBoundingClientRect();
+    const touch = e.touches[0];
+    
+    // 🔥 SALVA A ÚLTIMA POSIÇÃO DO TOUCH
+    lastTouchX = touch.clientX - rect.left;
+    lastTouchY = touch.clientY - rect.top;
+    
+    mouseX = lastTouchX;
+    mouseY = Math.max(100, Math.min(350, lastTouchY));
+    updateCrosshair();
+    updateBowAngle();
+}
+
+function handleTouchStart(e) {
+    if (!gameActive || gamePaused || arrows <= 0) return;
+    e.preventDefault();
+    
+    const rect = gameArea.getBoundingClientRect();
+    const touch = e.touches[0];
+    
+    // 🔥 INICIALIZA COM A POSIÇÃO DO TOUCH INICIAL
+    lastTouchX = touch.clientX - rect.left;
+    lastTouchY = touch.clientY - rect.top;
+    
+    mouseX = lastTouchX;
+    mouseY = Math.max(100, Math.min(350, lastTouchY));
+    
+    isTouchActive = true;
+    updateCrosshair();
+    updateBowAngle();
+    startCharging();
+}
+
+function handleTouchEnd(e) {
+    if (!isCharging || !gameActive || gamePaused) return;
+    e.preventDefault();
+    
+    // 🔥 GARANTE QUE USA A ÚLTIMA POSIÇÃO ANTES DE SOLTAR
+    if (isTouchActive) {
+        mouseX = lastTouchX;
+        mouseY = Math.max(100, Math.min(350, lastTouchY));
+        updateCrosshair();
+        updateBowAngle();
+    }
+    
+    finishShot();
+    isTouchActive = false;
+}
+
+// 🔥 TAMBÉM ATUALIZAR A FUNÇÃO handleMouseMove PARA CONSISTÊNCIA
+function handleMouseMove(e) {
+    if (!gameActive || gamePaused) return;
+    const rect = gameArea.getBoundingClientRect();
+    
+    // 🔥 SALVA TAMBÉM PARA MOUSE (PARA CONSISTÊNCIA)
+    lastTouchX = e.clientX - rect.left;
+    lastTouchY = e.clientY - rect.top;
+    
+    mouseX = lastTouchX;
+    mouseY = Math.max(100, Math.min(350, lastTouchY));
+    updateCrosshair();
+    updateBowAngle();
+}
+
+function handleMouseDown(e) {
+    if (!gameActive || gamePaused || arrows <= 0) return;
+    
+    const rect = gameArea.getBoundingClientRect();
+    
+    // 🔥 INICIALIZA COM A POSIÇÃO DO CLIQUE
+    lastTouchX = e.clientX - rect.left;
+    lastTouchY = e.clientY - rect.top;
+    
+    mouseX = lastTouchX;
+    mouseY = Math.max(100, Math.min(350, lastTouchY));
+    
+    isTouchActive = true;
+    updateCrosshair();
+    updateBowAngle();
+    startCharging();
+}
+
+function handleMouseUp(e) {
+    if (!isCharging || !gameActive || gamePaused) return;
+    
+    // 🔥 GARANTE POSIÇÃO FINAL
+    if (isTouchActive) {
+        const rect = gameArea.getBoundingClientRect();
+        lastTouchX = e.clientX - rect.left;
+        lastTouchY = e.clientY - rect.top;
+        
+        mouseX = lastTouchX;
+        mouseY = Math.max(100, Math.min(350, lastTouchY));
+        updateCrosshair();
+        updateBowAngle();
+    }
+    
+    finishShot();
+    isTouchActive = false;
+}
+
+// 🔥 ATUALIZAR A FUNÇÃO shootArrow PARA USAR AS VARIÁVEIS GLOBAIS
+function shootArrow() {
+    const arrow = document.createElement('div');
+    arrow.classList.add('arrow');
+    const archerX = 90;
+    const archerY = 320;
+    arrow.style.left = archerX + 'px';
+    arrow.style.top = archerY + 'px';
+    
+    // 🔥 USA AS VARIÁVEIS mouseX E mouseY ATUAIS (que foram atualizadas antes do tiro)
+    const deltaX = mouseX - archerX;
+    const deltaY = mouseY - archerY;
+    const angle = Math.atan2(deltaY, deltaX);
+    
+    arrow.style.transform = `rotate(${angle}rad)`;
+    
+    const arrowHead = document.createElement('div');
+    arrowHead.classList.add('arrow-head');
+    arrow.appendChild(arrowHead);
+    
+    const arrowFeather = document.createElement('div');
+    arrowFeather.classList.add('arrow-feather');
+    arrow.appendChild(arrowFeather);
+    
+    gameArea.appendChild(arrow);
+    arrowsShot.push(arrow);
+    
+    const speed = 5 + (chargePower / 100) * 10;
+    let vx = Math.cos(angle) * speed;
+    let vy = Math.sin(angle) * speed;
+    vx += windForce * 0.5;
+    
+    const arrowId = setInterval(() => {
+        if (!gameActive || gamePaused) {
+            clearInterval(arrowId);
+            return;
+        }
+        const currentLeft = parseFloat(arrow.style.left);
+        const currentTop = parseFloat(arrow.style.top);
+        vy += gravity;
+        vx += windForce * 0.02;
+        const newLeft = currentLeft + vx;
+        const newTop = currentTop + vy;
+        arrow.style.left = newLeft + 'px';
+        arrow.style.top = newTop + 'px';
+        const newAngle = Math.atan2(vy, vx);
+        arrow.style.transform = `rotate(${newAngle}rad)`;
+        checkCollisions(arrow, newLeft, newTop);
+        if (newLeft > gameArea.offsetWidth || newLeft < 0 || 
+            newTop > gameArea.offsetHeight || newTop < 0) {
+            clearInterval(arrowId);
+            arrow.remove();
+            arrowsShot = arrowsShot.filter(a => a !== arrow);
+        }
+    }, 30);
+}
+
+// 🔥 ADICIONAR FEEDBACK VISUAL PARA CELULAR
+function updateCrosshair() {
+    crosshair.style.left = mouseX + 'px';
+    crosshair.style.top = mouseY + 'px';
+    
+    // 🔥 FEEDBACK VISUAL EXTRA PARA CELULAR
+    if (isTouchActive) {
+        crosshair.style.border = '2px solid #ff4444';
+        crosshair.style.boxShadow = '0 0 10px #ff4444';
+    } else {
+        crosshair.style.border = '2px solid #e0e1dd';
+        crosshair.style.boxShadow = '0 0 5px rgba(224, 225, 221, 0.5)';
+    }
+}
+
 // 🔥 FUNÇÕES DE RANKING SIMPLIFICADAS - AGORA COM NOME DIRETO
 async function buscarRankingPublico() {
   try {
