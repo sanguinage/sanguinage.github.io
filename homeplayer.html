@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>REINO DO CAOS — Painel do Jogador</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-top: #0f2430;
+      --bg-bottom: #070607;
+      --card: #0f1b26;
+      --gold: #e0a20b;
+      --gold-strong: #d89b0a;
+      --muted: #9aa8b3;
+      --accent: #0f3460;
+      --danger: #e94560;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Montserrat, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      background:
+        radial-gradient(1200px 600px at 10% 10%, rgba(10, 20, 30, 0.35), transparent 10%),
+        linear-gradient(180deg, var(--bg-top) 0%, #0b1a24 30%, var(--bg-bottom) 100%);
+      color: #e6e6e6;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    header.site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 18px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .crown-sm {
+      width: 46px;
+      height: 46px;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .brand h1 {
+      margin: 0;
+      font-family: 'Cinzel', serif;
+      font-size: 20px;
+      color: var(--gold);
+    }
+    .user-bubble {
+      background: var(--accent);
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: var(--gold);
+      font-weight: 700;
+    }
+    .logout {
+      background: var(--gold);
+      color: #081217;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    main {
+      margin-top: 20px;
+    }
+    .content-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.005));
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      border: 1px solid rgba(224,162,11,0.06);
+    }
+    .content-card h2 {
+      font-family: 'Cinzel', serif;
+      color: var(--gold);
+      margin-top: 0;
+    }
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .action-btn {
+      padding: 14px;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255,255,255,0.03);
+      color: var(--gold);
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.2s;
+    }
+    .action-btn:hover {
+      background: rgba(224,162,11,0.1);
+    }
+    /* SEU BOTÃO PERSONALIZADO - TREINO DE PONTARIA */
+    .action-btn.treino {
+      background: rgba(233, 69, 96, 0.1);
+      border: 1px solid rgba(233, 69, 96, 0.3);
+      color: #e94560;
+    }
+    .action-btn.treino:hover {
+      background: rgba(233, 69, 96, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(233, 69, 96, 0.3);
+    }
+    /* BOTÃO DE EXPLORAÇÃO */
+.action-btn.explorar {
+  background: rgba(76, 201, 240, 0.1); /* Azul esverdeado - natureza/mistério */
+  border: 1px solid rgba(76, 201, 240, 0.3);
+  color: #4cc9f0;
+}
+.action-btn.explorar:hover {
+  background: rgba(76, 201, 240, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 201, 240, 0.3);
+}
+
+  </style>
+</head>
+<body>
+  <!-- HEADER INJETADO -->
+  <div id="header-placeholder"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./game-core.js"></script>
+  <div class="container">
+    <header class="site-header">
+      <div class="brand">
+        <div class="crown-sm">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+            <path d="M3 8l3.5 9h11L21 8l-4.5 3L12 3 7.5 11 3 8z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div>
+          <h1>REINO DO CAOS</h1>
+          <p style="margin:0; color:var(--muted); font-size:12px;">Painel do Aventureiro</p>
+        </div>
+      </div>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <div id="header-username" class="user-bubble">—</div>
+        <button id="btn-logout" class="logout">Sair</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="content-card">
+        <h2>Bem-vindo ao Reino!</h2>
+        <p>Escolha sua próxima ação:</p>
+        <div class="actions">
+          <button class="action-btn" onclick="window.location.href='missao.html'">⚔️ Missões</button>
+          <button class="action-btn" onclick="window.location.href='inventario.html'">🎒 Inventário</button>
+          <button class="action-btn" onclick="window.location.href='eventosonline.html'">✅ Salão Online</button>
+          <button class="action-btn explorar" onclick="abrirExploracao()">🗺️ Explorar</button>
+          <!-- SEU BOTÃO PERSONALIZADO -->
+          <button class="action-btn treino" onclick="abrirTreinoPontaria()">🏹 Treinar Pontaria</button>          
+        </div>
+      </div>
+    </main>
+  </div>
+  <!-- Scripts -->
+     
+  <script>
+    // Função do seu botão personalizado
+    function abrirTreinoPontaria() {
+      const playerData = JSON.parse(localStorage.getItem('playerData') || '{}');
+      localStorage.setItem('preTreinoData', JSON.stringify(playerData));
+      window.location.href = './archergame.html';
+    }
+    // Botão Exploração
+    function abrirExploracao() {
+      const playerData = JSON.parse(localStorage.getItem('playerData') || '{}');
+      localStorage.setItem('preExploracaoData', JSON.stringify(playerData));
+      window.location.href = './eventos.html';
+    }
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Verifica login
+      if (!localStorage.getItem('idusuario')) {
+        alert('Faça login primeiro.');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Atualiza nome do usuário
+      document.getElementById('header-username').textContent = localStorage.getItem('nomeusuario') || 'Aventureiro';
+
+      // Logout
+      document.getElementById('btn-logout').addEventListener('click', async () => {
+  const id = localStorage.getItem('idusuario');
+  if (id) {
+    await supabase.from('usuario').update({ statusonline: false }).eq('idusuario', id);
+  }
+  localStorage.clear();
+  window.location.href = 'index.html';
+});
+
+      // Injeta header e footer
+      try {
+        const header = await fetch('header.html').then(r => r.text());
+        //const footer = await fetch('footer.html').then(r => r.text());
+        document.getElementById('header-placeholder').innerHTML = header;
+        //document.getElementById('footer-placeholder').innerHTML = footer;
+        // Atualiza header (do localStorage)
+        //atualizarHeaderPlayer();
+
+        // Atualiza footer (do banco, via game-core.js)
+        //atualizarFooterPlayer();
+      } catch (e) {
+        console.error('Erro ao carregar componentes:', e);
+      }
+    });
+    document.addEventListener('DOMContentLoaded', async () => {
+ 
+  // Atualiza nome do usuário no cabeçalho fixo
+  document.getElementById('header-username').textContent = localStorage.getItem('nomeusuario') || 'Aventureiro';
+  
+  document.getElementById('btn-logout').addEventListener('click', async () => {    
+    GAME.logout();
+    localStorage.clear();    
+    window.location.href = 'index.html';
+  });
+
+  // FUNÇÃO GENÉRICA: carrega HTML e executa scripts (como module quando necessário)
+async function loadAndExecuteHTML(placeHolderId, url) {
+  const container = document.getElementById(placeHolderId);
+  const res = await fetch(url);
+  const html = await res.text();
+  container.innerHTML = html;
+
+  // Executa <script> internos substituindo-os por novos elementos.
+  const scripts = container.querySelectorAll('script');
+  for (const oldScript of scripts) {
+    const newScript = document.createElement('script');
+
+    // Se o script original tiver src, preserva e força type=module
+    if (oldScript.src) {
+      newScript.src = oldScript.src;
+      // Se o script usa top-level await, enable module mode:
+      newScript.type = 'module';
+      newScript.async = false;
+    } else {
+      // Inline: copia conteúdo. Se o texto contém 'await' no topo, executa como module.
+      const text = oldScript.textContent || '';
+      const looksLikeTopAwait = /^\s*await\b|^\s*\/\/.*await/s.test(text);
+      newScript.type = looksLikeTopAwait ? 'module' : (oldScript.type || 'text/javascript');
+      newScript.textContent = text;
+    }
+
+    oldScript.parentNode.replaceChild(newScript, oldScript);
+  }
+}
+
+
+  // Função para atualizar os dados do jogador no header injetado
+  function atualizarHeaderPlayer() {
+    const player = JSON.parse(localStorage.getItem('playerData')) || {};
+    document.getElementById('player-nome').textContent = player.nome || '-';
+    document.getElementById('player-level').textContent = player.level || '-';
+    document.getElementById('player-vida').textContent = `${player.vida || 0}/${player.maxvida || 0}`;
+    document.getElementById('player-energia').textContent = player.energia || '-';
+    document.getElementById('player-ouro').textContent = player.ouro || '-';
+    document.getElementById('player-exp').textContent = player.exp || '-';
+  }
+
+  async function initPage() {
+    // Garante autenticação
+    GAME.requireAuth();
+
+    // Carrega dados do jogador
+    await GAME.ensurePlayerData();  
+
+    // Atualiza header
+    atualizarHeaderPlayer();
+
+    // Carrega eventos (necessário para footer ter acesso às tabelas)
+    await GAME.loadEvents();
+
+    // Atualiza footer
+    GAME.atualizarFooter();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPage);
+  } else {
+    initPage();
+  }
+
+  async function loadHeader() {
+  try {
+    const res = await fetch('./header.html');
+    if (!res.ok) throw new Error('Header não encontrado');
+    const html = await res.text();
+    document.getElementById('header-placeholder').innerHTML = html;
+
+    // ✅ Executa o script do header manualmente
+    const script = document.querySelector('#header-placeholder script');
+    if (script) {
+      const newScript = document.createElement('script');
+      newScript.textContent = script.textContent;
+      script.parentNode.replaceChild(newScript, script);
+    }
+  } catch (err) {
+    console.warn('Falha ao carregar header.html:', err);
+  }
+}
+
+async function initPage() {  
+  await loadHeader();
+  await GAME.ensurePlayerData();   // <--- garante playerData completo
+  await loadAndExecuteHTML('header-placeholder', './header.html');
+await loadAndExecuteHTML('footer-placeholder', './footer.html');
+
+await GAME.loadEvents();
+await GAME.atualizarFooter(); // atualização central
+if (typeof atualizarResumoPlayerFooter === 'function') atualizarResumoPlayerFooter();
+
+  if (typeof atualizarFooter === 'function') atualizarFooter();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPage);
+} else {  
+  initPage();
+}
+
+});
+
+  </script>
+  <!-- FOOTER INJETADO -->
+  <div id="footer-placeholder"></div>
+  
+</body>
+</html>

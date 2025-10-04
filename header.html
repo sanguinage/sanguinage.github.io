@@ -1,0 +1,103 @@
+<style>
+  .header { 
+    background: rgba(0,0,0,0.8); 
+    padding:15px; 
+    border-radius:10px; 
+    margin-bottom:20px; 
+    border:2px solid #666666; 
+  }
+  .player-info { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); 
+    gap:10px; 
+  }
+  .stat-card { 
+    background: rgba(255,255,255,0.1); 
+    padding:12px; 
+    border-radius:8px; 
+    text-align:center; 
+    border:1px solid rgba(255,255,255,0.2); 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .stat-label {
+    font-size: 0.9em;
+    color: #ccc;
+    margin-bottom: 4px;
+  }
+  .stat-value { 
+    color: #FFD700; /* ✨ Dourado brilhante! */
+    font-weight: bold; 
+    font-size: 1.3em; 
+  }
+</style>
+<div class="header">
+  <div class="player-info">
+    <div class="stat-card">
+      <div class="stat-label">👤 Player</div>
+      <div class="stat-value" id="player-nome">-</div>
+    </div>    
+    <div class="stat-card">
+      <div class="stat-label">❤️ Vida (HP)</div>
+      <div class="stat-value" id="player-vida">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">⚡ Energia (MP)</div>
+      <div class="stat-value" id="player-energia">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">💰 Ouro</div>
+      <div class="stat-value" id="player-ouro">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">📊 EXP</div>
+      <div class="stat-value" id="player-exp">-</div>
+    </div>
+    <!-- NOVOS ATRIBUTOS -->
+    <div class="stat-card">
+      <div class="stat-label">💪 Força</div>
+      <div class="stat-value" id="player-forca">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🛡️ Defesa</div>
+      <div class="stat-value" id="player-defesa">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🧠 Inteligência</div>
+      <div class="stat-value" id="player-inteligencia">-</div>
+    </div>
+  </div>  
+</div>
+
+  <script>
+  async function atualizarHeaderPlayer() {
+    try {
+      // ✅ Garante que os dados venham do banco se não estiverem no localStorage
+      const player = await window.GAME.ensurePlayerData();
+      if (player) {
+        document.getElementById('player-nome').textContent = player.nomeplayer || '-';
+        
+        document.getElementById('player-vida').textContent = `${player.vida || 0}/${player.maxvida || 0}`;
+        document.getElementById('player-energia').textContent = player.energia || '0';
+        document.getElementById('player-ouro').textContent = player.ouro || '0';
+        document.getElementById('player-exp').textContent = player.exp || '0';
+        document.getElementById('player-forca').textContent = player.forcaini || '0';
+        document.getElementById('player-defesa').textContent = player.defesaini || '0';
+        document.getElementById('player-inteligencia').textContent = player.inteligenciaini || '0';
+      } else {
+        // Se não houver jogador, exibe hífens
+        document.querySelectorAll('.stat-value').forEach(el => el.textContent = '-');
+      }
+    } catch (err) {
+      console.error('Erro ao carregar dados do jogador:', err);
+      document.querySelectorAll('.stat-value').forEach(el => el.textContent = '-');
+    }
+  }
+
+  setInterval(atualizarHeaderPlayer, 1000);
+
+</script>
+
+</script>
